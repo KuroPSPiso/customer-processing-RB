@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Entity
 public class MT940Min {
 	private @Id @GeneratedValue Long reference;
@@ -12,6 +14,9 @@ public class MT940Min {
 	private double start_Balance;
 	private String mutation; //to be split and calculated
 	private double end_Balance;
+	private boolean transaction_Status;
+	@Value("${default.message.processing}")
+	private String transaction_StatusMsg;
 	
 	public MT940Min() {}
 
@@ -24,9 +29,19 @@ public class MT940Min {
 		this.start_Balance = start_Balance;
 		this.mutation = mutation;
 		this.end_Balance = end_Balance;
+		this.transaction_Status = false;
 	}
-
-
+	
+	public MT940Min(Long reference, String account_Number, String description, double start_Balance, String mutation,
+			double end_Balance, boolean transaction_Status, String transaction_StatusMsg) {
+		super();
+		this.reference = reference;
+		this.account_Number = account_Number;
+		this.description = description;
+		this.start_Balance = start_Balance;
+		this.mutation = mutation;
+		this.end_Balance = end_Balance;
+	}
 
 	public Long getReference() {
 		return reference;
@@ -50,5 +65,21 @@ public class MT940Min {
 
 	public double getEnd_Balance() {
 		return end_Balance;
+	}
+
+	public boolean isTransaction_Status() {
+		return transaction_Status;
+	}
+
+	public void setTransaction_Status(boolean transaction_Status) {
+		this.transaction_Status = transaction_Status;
+	}
+
+	public String getTransaction_StatusMsg() {
+		return transaction_StatusMsg;
+	}
+
+	public void setTransaction_StatusMsg(String transaction_StatusMsg) {
+		this.transaction_StatusMsg = transaction_StatusMsg;
 	}
 }
