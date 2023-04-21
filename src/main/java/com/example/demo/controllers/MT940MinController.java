@@ -1,4 +1,4 @@
-package com.example.demo.Controllers;
+package com.example.demo.controllers;
 
 import java.io.IOException;
 
@@ -6,15 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.Repositories.MT940MinRepository;
+import com.example.demo.processing.ProcessMT940Min;
+import com.example.demo.repositories.MT940MinRepository;
 
 @RestController
 @RequestMapping("customers")
 public class MT940MinController {
-	
-	public enum FileType{
-		
-	}
 	
 	private final MT940MinRepository repo;
 	
@@ -53,9 +50,9 @@ public class MT940MinController {
 		switch(type)
 		{
 			case "text/csv":
-				return "isCSV";
+				return ProcessMT940Min.processCSV(contents).log;
 			case "application/xml":
-				return "isXML";
+				return ProcessMT940Min.processXML(contents).log;
 			default: return "unknown file type";
 		}
 	}
