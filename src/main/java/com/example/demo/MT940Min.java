@@ -6,13 +6,21 @@ import javax.persistence.Id;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
 @Entity
 public class MT940Min {
+	@JacksonXmlProperty(localName = "reference")
 	private @Id @GeneratedValue Long reference;
+	@JacksonXmlProperty(localName = "accountNumber")
 	private String account_Number; //IBAN
+	@JacksonXmlProperty(localName = "description")
 	private String description;
+	@JacksonXmlProperty(localName = "startBalance")
 	private double start_Balance;
+	@JacksonXmlProperty(localName = "mutation")
 	private String mutation; //to be split and calculated
+	@JacksonXmlProperty(localName = "endBalance")
 	private double end_Balance;
 	private boolean transaction_Status;
 	@Value("${default.message.processing}")
