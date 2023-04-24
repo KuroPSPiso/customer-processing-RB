@@ -13,5 +13,16 @@ Java, preferably with springboot
 - End balance needs to validated
 - A draft of each transaction with the transaction reference and description of any failed record
 
-## mvc access
-https://localhost:8080/customers/
+## Functions
+Upload supports; 
+- basic CSV( with comma delimiter, positition of columns can be scrambled)
+- XML
+
+Example usage:
+```
+http://localhost:8080/customers/upload
+[from-data (POST)]
+{
+	file: "...file.xml"
+}
+```
