@@ -3,10 +3,10 @@
 ## Stack
 Java, preferably with springboot
 
-## Todo
-- ~~Supported formats CSV, XML~~
-- ~~Parse and validate records~~
-- ~~Import new records~~
+## Requires
+- Supported formats CSV, XML
+- Parse and validate records
+- Import new records
 
 ## Output
 - All transactions need to be Unique
