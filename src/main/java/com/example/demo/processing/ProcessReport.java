@@ -9,7 +9,10 @@ public class ProcessReport {
 		this.log = log;
 	}
 
-	public static final ProcessReport defaultReport = new ProcessReport(false, "not processed");
-	public static final ProcessReport defaultSuccessReport = new ProcessReport(true, "data has succesfully been processed");
+	public static ProcessReport DefaultReport() { return new ProcessReport(false, "not processed"); };
+	public static ProcessReport DefaultSuccessReport() { return new ProcessReport(true, ""); };
+	
+	public static final ProcessReport defaultReport = DefaultReport();
+	public static final ProcessReport defaultSuccessReport = DefaultSuccessReport();
 	
 }

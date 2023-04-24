@@ -8,16 +8,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.processing.ProcessMT940Min;
 import com.example.demo.repositories.MT940MinRepository;
+import com.example.demo.services.MT940MinService;
 
 @RestController
 @RequestMapping("customers")
 public class MT940MinController {
 	
-	private final MT940MinRepository repo;
+	private final MT940MinService service;
 	
-	MT940MinController(MT940MinRepository repo)
+	MT940MinController(MT940MinService service)
 	{
-		this.repo = repo;
+		this.service = service;
 	}
 	
 	@GetMapping("/test")
@@ -50,9 +51,9 @@ public class MT940MinController {
 		switch(type)
 		{
 			case "text/csv":
-				return ProcessMT940Min.processCSV(contents).log;
+				return ProcessMT940Min.processCSV(contents, service).log;
 			case "application/xml":
-				return ProcessMT940Min.processXML(contents).log;
+				return ProcessMT940Min.processXML(contents, service).log;
 			default: return "unknown file type";
 		}
 	}

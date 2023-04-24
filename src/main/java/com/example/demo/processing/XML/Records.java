@@ -1,6 +1,6 @@
 package com.example.demo.processing.XML;
 
-import com.example.demo.MT940Min;
+import com.example.demo.models.MT940Min;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;

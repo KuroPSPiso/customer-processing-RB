@@ -1,17 +1,19 @@
-package com.example.demo;
+package com.example.demo.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.annotation.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Entity
 public class MT940Min {
 	@JacksonXmlProperty(localName = "reference")
-	private @Id @GeneratedValue Long reference;
+	private @Id Long reference;
 	@JacksonXmlProperty(localName = "accountNumber")
 	private String account_Number; //IBAN
 	@JacksonXmlProperty(localName = "description")
@@ -22,9 +24,14 @@ public class MT940Min {
 	private String mutation; //to be split and calculated
 	@JacksonXmlProperty(localName = "endBalance")
 	private double end_Balance;
-	private boolean transaction_Status;
-	@Value("${default.message.processing}")
-	private String transaction_StatusMsg;
+	@JsonIgnore
+	@Transient
+	@javax.persistence.Transient
+	private boolean transaction_Status = true;
+	@JsonIgnore
+	@Transient
+	@javax.persistence.Transient
+	private String transaction_StatusMsg = "";
 	
 	public MT940Min() {}
 
@@ -89,5 +96,9 @@ public class MT940Min {
 
 	public void setTransaction_StatusMsg(String transaction_StatusMsg) {
 		this.transaction_StatusMsg = transaction_StatusMsg;
+	}
+	
+	public void appendTransaction_StatusMsg(String transaction_StatusMsg) {
+		this.transaction_StatusMsg += transaction_StatusMsg;
 	}
 }
