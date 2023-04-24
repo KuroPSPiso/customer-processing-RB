@@ -16,6 +16,19 @@ public class ProcessMT940Min {
 	
 	final static String COMMA_DELIMITER = ",";
 	
+	private static Map<String, Integer> getFieldNamesFromLine(String line) {
+		Map<String, Integer> fieldNamesIndexes = new HashMap<String, Integer>();
+	    try (Scanner rowScanner = new Scanner(line)) {
+	        rowScanner.useDelimiter(COMMA_DELIMITER);
+	        int index = 0;
+	        while (rowScanner.hasNext()) {
+	        	fieldNamesIndexes.put(rowScanner.next(), index);
+	        	index++;
+	        }
+	    }
+	    return fieldNamesIndexes;
+	}
+	
 	private static List<String> getRecordFromLine(String line) {
 	    List<String> values = new ArrayList<String>();
 	    try (Scanner rowScanner = new Scanner(line)) {
@@ -27,20 +40,58 @@ public class ProcessMT940Min {
 	    return values;
 	}
 	
-	public static ProcessReport processCSV(byte[] contents, final MT940MinService repo)
+	public static ProcessReport processCSV(byte[] contents, final MT940MinService service)
 	{
 		ProcessReport report = ProcessReport.DefaultReport();
 		
-		//format csv
-		String sContents = new String(contents, 0, contents.length);
-		List<List<String>> records = new ArrayList<>();
-		try (Scanner scanner = new Scanner(sContents)) {
-		    while (scanner.hasNextLine()) {
-		        records.add(getRecordFromLine(scanner.nextLine()));
-		    }
+		try {
+			if(contents == null) throw new Exception("Unable to file/contents\n");
+			
+			Map<String, Integer> fieldNamesIndexes = new HashMap<String, Integer>();
+			boolean isFirstLine = true;
+			List<List<String>> records = new ArrayList<>();
+			
+			String sContents = new String(contents, 0, contents.length);
+			
+			//format csv
+			try (Scanner scanner = new Scanner(sContents)) {
+			    while (scanner.hasNextLine()) {
+			    	if(isFirstLine) {
+			    		fieldNamesIndexes = getFieldNamesFromLine(scanner.nextLine());
+			    		isFirstLine = false;
+			    	} else {
+			    		records.add(getRecordFromLine(scanner.nextLine()));
+			    	}
+			    }
+			}
+			
+			if(fieldNamesIndexes.size() == 0) throw new Exception("Unable read filenames\n");
+			if(records.size() == 0) throw new Exception("No records found\n");
+			
+			//keynames: Reference,Account Number,Description,Start Balance,Mutation,End Balance
+			MT940Min[] transactions = new MT940Min[records.size()];
+			for(int iTransaction = 0; iTransaction < records.size(); iTransaction++) {
+				List<String> row = records.get(iTransaction);
+				Long reference = Long.parseLong(row.get(fieldNamesIndexes.get("Reference")));
+				Double startBalance = Double.valueOf(row.get(fieldNamesIndexes.get("Start Balance")));
+				Double endBalance = Double.valueOf(row.get(fieldNamesIndexes.get("End Balance")));
+				transactions[iTransaction] = new MT940Min(
+						reference,
+						row.get(fieldNamesIndexes.get("Account Number")),
+						row.get(fieldNamesIndexes.get("Description")),
+						startBalance,
+						row.get(fieldNamesIndexes.get("Mutation")),
+						endBalance);
+			}
+			
+			transactions = checkTransactions(report, transactions);
+			
+			transactions = service.addFileTransactions(transactions);
+			//build final report
+			report = rebuildProcessReport(report, transactions);
+		} catch (Exception e) {
+			report = new ProcessReport(false, e.getMessage());
 		}
-		
-		report = new ProcessReport(false, String.format("%s\n", sContents.length()));
 		
 		return report;
 	}
@@ -50,6 +101,7 @@ public class ProcessMT940Min {
 		ProcessReport report = ProcessReport.DefaultReport();
 		XmlMapper mapper = new XmlMapper();
 		try {
+			if(contents == null) throw new Exception("Unable to file/contents\n");
 			Records records = mapper.readValue(contents, Records.class);
 			if(records == null) throw new Exception("Unable to load records\n");
 			if(records.getTransactions() == null) throw new Exception("Records attempted to load but was unable to parse\n");
@@ -113,7 +165,7 @@ public class ProcessMT940Min {
 				int reoccurance = 0;
 				transactionReferenceCheckList.put(transaction.getReference(), reoccurance = transactionReferenceCheckList.get(transaction.getReference()) + 1);
 				transactions[transactionReferenceFirstOccuranceList.get(transaction.getReference())].setTransaction_Status(false);
-				transactions[transactionReferenceFirstOccuranceList.get(transaction.getReference())].setTransaction_StatusMsg("reference number is not unique");
+				transactions[transactionReferenceFirstOccuranceList.get(transaction.getReference())].setTransaction_StatusMsg("reference number is not unique\n");
 				
 				referenceCheck = new ProcessReport(false, String.format("%s: has been detected %s times.\n", transaction.getReference(), reoccurance));
 				transaction.setTransaction_StatusMsg("reference number is not unique\n");
